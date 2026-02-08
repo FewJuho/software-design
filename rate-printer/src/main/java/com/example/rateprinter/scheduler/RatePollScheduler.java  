@@ -1,0 +1,45 @@
+package com.example.rateprinter.scheduler;
+
+import com.example.rateprinter.client.CurrencyRateClient;
+import com.example.rateprinter.config.RatePrinterProperties;
+import com.example.rateprinter.dto.ExchangeRateDto;
+import com.example.rateprinter.output.RateOutputWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+/**
+ * Periodically polls the currency rate provider and delegates output.
+ * Single Responsibility: orchestrates fetch → display.
+ */
+@Component
+public class RatePollScheduler {
+
+    private static final Logger log = LoggerFactory.getLogger(RatePollScheduler.class);
+
+    private final CurrencyRateClient rateClient;
+    private final RateOutputWriter outputWriter;
+    private final RatePrinterProperties properties;
+
+    public RatePollScheduler(CurrencyRateClient rateClient,
+                             RateOutputWriter outputWriter,
+                             RatePrinterProperties properties) {
+        this.rateClient = rateClient;
+        this.outputWriter = outputWriter;
+        this.properties = properties;
+    }
+
+    @Scheduled(fixedDelayString = "${rate-printer.poll-interval-ms:5000}")
+    public void pollRate() {
+        try {
+            ExchangeRateDto rate = rateClient.fetchRate(
+                    properties.fromCurrency(),
+                    properties.toCurrency()
+            );
+            outputWriter.write(rate);
+        } catch (Exception e) {
+            log.error("Failed to fetch exchange rate: {}", e.getMessage(), e);
+        }
+    }
+}

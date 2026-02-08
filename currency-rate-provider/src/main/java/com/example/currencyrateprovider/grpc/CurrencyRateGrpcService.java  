@@ -1,0 +1,55 @@
+package com.example.currencyrateprovider.grpc;
+
+import com.example.currencyrateprovider.domain.CurrencyPair;
+import com.example.currencyrateprovider.domain.CurrencyRate;
+import com.example.currencyrateprovider.service.CurrencyRateProvider;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * gRPC adapter — translates gRPC requests into domain service calls.
+ * This layer is purely infrastructural (Ports & Adapters / Hexagonal).
+ */
+@GrpcService
+public class CurrencyRateGrpcService extends CurrencyRateServiceGrpc.CurrencyRateServiceImplBase {
+
+    private static final Logger log = LoggerFactory.getLogger(CurrencyRateGrpcService.class);
+
+    private final CurrencyRateProvider rateProvider;
+
+    public CurrencyRateGrpcService(CurrencyRateProvider rateProvider) {
+        this.rateProvider = rateProvider;
+    }
+
+    @Override
+    public void getRate(RateRequest request, StreamObserver<RateResponse> responseObserver) {
+        try {
+            CurrencyPair pair = new CurrencyPair(request.getFromCurrency(), request.getToCurrency());
+            CurrencyRate rate = rateProvider.getRate(pair);
+
+            RateResponse response = RateResponse.newBuilder()
+                .setFromCurrency(rate.pair().fromCurrency())
+                .setToCurrency(rate.pair().toCurrency())
+                .setRate(rate.rate())
+                .setTimestamp(rate.timestamp().toString())
+                .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid request: {}", e.getMessage());
+            responseObserver.onError(
+                Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException()
+            );
+        } catch (Exception e) {
+            log.error("Unexpected error processing rate request", e);
+            responseObserver.onError(
+                Status.INTERNAL.withDescription("Internal server error").asRuntimeException()
+            );
+        }
+    }
+}

@@ -1,0 +1,45 @@
+package com.example.currencyrateprovider.service;
+
+import com.example.currencyrateprovider.config.BaseRateProperties;
+import com.example.currencyrateprovider.domain.CurrencyPair;
+import com.example.currencyrateprovider.domain.CurrencyRate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+
+/**
+ * Default implementation that combines a base rate with random fluctuation.
+ */
+@Service
+public class DefaultCurrencyRateProvider implements CurrencyRateProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultCurrencyRateProvider.class);
+
+    private final BaseRateProperties properties;
+    private final RandomFluctuationStrategy fluctuationStrategy;
+
+    public DefaultCurrencyRateProvider(BaseRateProperties properties,
+                                       RandomFluctuationStrategy fluctuationStrategy) {
+        this.properties = properties;
+        this.fluctuationStrategy = fluctuationStrategy;
+    }
+
+    @Override
+    public CurrencyRate getRate(CurrencyPair pair) {
+        String pairKey = pair.fromCurrency() + pair.toCurrency();
+
+        if (!properties.supports(pairKey)) {
+            throw new IllegalArgumentException("Unsupported currency pair: " + pairKey);
+        }
+
+        double baseRate = properties.getBaseRate(pairKey);
+        double fluctuatedRate = fluctuationStrategy.apply(baseRate);
+
+        CurrencyRate rate = new CurrencyRate(pair, fluctuatedRate, Instant.now());
+
+        log.info("Generated rate: {} = {}", pairKey, fluctuatedRate);
+        return rate;
+    }
+}

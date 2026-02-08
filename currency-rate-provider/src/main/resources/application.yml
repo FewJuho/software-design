@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: currency-rate-provider
+
+grpc:
+  server:
+    port: 9090
+
+currency:
+  base-rates:
+    USDRUB: 92.50
+    EURRUB: 100.30

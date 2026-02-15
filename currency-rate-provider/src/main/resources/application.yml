@@ -10,3 +10,9 @@ currency:
   base-rates:
     USDRUB: 92.50
     EURRUB: 100.30
+
+zookeeper:
+  connect-string: localhost:2181
+  service-path: /services
+  session-timeout-ms: 30000
+  connection-timeout-ms: 15000

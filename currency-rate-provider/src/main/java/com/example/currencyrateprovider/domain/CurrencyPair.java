@@ -11,9 +11,8 @@ public record CurrencyPair(String fromCurrency, String toCurrency) {
         Objects.requireNonNull(fromCurrency, "fromCurrency must not be null");
         Objects.requireNonNull(toCurrency, "toCurrency must not be null");
 
-        if (fromCurrency.isBlank() || toCurrency.isBlank()) {
+        if (fromCurrency.isBlank() || toCurrency.isBlank())
             throw new IllegalArgumentException("Currency codes must not be blank");
-        }
 
         fromCurrency = fromCurrency.toUpperCase().trim();
         toCurrency = toCurrency.toUpperCase().trim();

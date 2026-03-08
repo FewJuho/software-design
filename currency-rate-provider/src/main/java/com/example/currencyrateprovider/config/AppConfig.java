@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(BaseRateProperties.class)
+@EnableConfigurationProperties({BaseRateProperties.class, ZooKeeperProperties.class})
 public class AppConfig {
 }

@@ -26,6 +26,10 @@
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
         <curator.version>5.6.0</curator.version>
+        <pact.version>4.6.14</pact.version>
+        <pact-broker.url>http://localhost:9292</pact-broker.url>
+        <pact-broker.username>pact</pact-broker.username>
+        <pact-broker.password>pact</pact-broker.password>
     </properties>
 
     <dependencies>
@@ -80,6 +84,25 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>au.com.dius.pact.consumer</groupId>
+            <artifactId>junit5</artifactId>
+            <version>${pact.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -116,6 +139,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>${pact.version}</version>
+                <configuration>
+                    <pactBrokerUrl>${pact-broker.url}</pactBrokerUrl>
+                    <pactBrokerUsername>${pact-broker.username}</pactBrokerUsername>
+                    <pactBrokerPassword>${pact-broker.password}</pactBrokerPassword>
+                    <projectVersion>${project.version}</projectVersion>
+                    <trimSnapshot>true</trimSnapshot>
+                </configuration>
             </plugin>
         </plugins>
     </build>

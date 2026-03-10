@@ -26,6 +26,10 @@
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
         <curator.version>5.6.0</curator.version>
+        <pact.version>4.6.14</pact.version>
+        <pact-broker.url>http://localhost:9292</pact-broker.url>
+        <pact-broker.username>pact</pact-broker.username>
+        <pact-broker.password>pact</pact-broker.password>
     </properties>
 
     <dependencies>
@@ -81,6 +85,24 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>au.com.dius.pact.provider</groupId>
+            <artifactId>junit5</artifactId>
+            <version>${pact.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -117,6 +139,17 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <pactbroker.url>${pact-broker.url}</pactbroker.url>
+                        <pactbroker.auth.username>${pact-broker.username}</pactbroker.auth.username>
+                        <pactbroker.auth.password>${pact-broker.password}</pactbroker.auth.password>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

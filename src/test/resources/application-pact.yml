@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: currency-rate-provider-pact-test
+
+grpc:
+  server:
+    port: -1
+
+currency:
+  base-rates:
+    USDRUB: 92.50
+    EURRUB: 100.30
+
+zookeeper:
+  enabled: false
